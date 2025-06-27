@@ -1,0 +1,82 @@
+import { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { Provider, useDispatch, useSelector } from 'react-redux';
+import { store } from './store';
+import { initializeAuth } from './store/slices/authSlice';
+import { initializeMockData } from './utils/mockData';
+import Layout from './components/Layout/Layout';
+import Login from './components/Auth/Login';
+import AdminDashboard from './components/Dashboard/AdminDashboard';
+import PatientList from './components/Patients/PatientList';
+import CalendarView from './components/Dashboard/CalendarView';
+import AppointmentsPage from './components/Appointments/AppointmentsPage';
+
+// Initialize mock data
+initializeMockData();
+
+// Custom hooks (replacing TypeScript-based hooks)
+const useAppDispatch = () => useDispatch();
+const useAppSelector = useSelector;
+
+const AppContent = () => {
+  const dispatch = useAppDispatch();
+  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const [authInitialized, setAuthInitialized] = useState(false);
+
+  useEffect(() => {
+    dispatch(initializeAuth());
+    setAuthInitialized(true);
+  }, [dispatch]);
+
+  if (!authInitialized) return null; // or a loading spinner
+
+  if (!isAuthenticated) {
+    return (
+      <Routes>
+        <Route path="/login" element={<Login />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
+  }
+
+  return (
+    <Layout>
+      <Routes>
+        {user?.role === 'Admin' ? (
+          <>
+            <Route path="/dashboard" element={<AdminDashboard />} />
+            <Route path="/patients" element={<PatientList />} />
+            <Route
+              path="/appointments"
+              element={<AppointmentsPage patients={store.getState().patients.patients} />}
+            />
+            <Route
+              path="/calendar"
+              element={<CalendarView patients={store.getState().patients.patients} />}
+            />
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </>
+        ) : (
+          <>
+            <Route path="/patient-dashboard" element={<div className="p-6">Patient Dashboard - Coming Soon</div>} />
+            <Route path="/my-appointments" element={<div className="p-6">My Appointments - Coming Soon</div>} />
+            <Route path="/my-records" element={<div className="p-6">Medical Records - Coming Soon</div>} />
+            <Route path="*" element={<Navigate to="/patient-dashboard" replace />} />
+          </>
+        )}
+      </Routes>
+    </Layout>
+  );
+};
+
+const App = () => {
+  return (
+    <Provider store={store}>
+      <Router>
+        <AppContent />
+      </Router>
+    </Provider>
+  );
+}
+
+export default App;
