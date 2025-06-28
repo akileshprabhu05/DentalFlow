@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Plus, Search, Edit, Trash2, User, Phone, Mail } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { setPatients, deletePatient, setSelectedPatient } from '../../store/slices/patientsSlice';
 import { storage } from '../../utils/storage';
 import PatientModal from './PatientModal';

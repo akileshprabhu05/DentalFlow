@@ -10,7 +10,6 @@ import {
   Sparkles,
   BarChart3,
 } from 'lucide-react';
-import { useAppSelector, useAppDispatch } from '../../hooks/redux';
 import { setPatients } from '../../store/slices/patientsSlice';
 import { setIncidents } from '../../store/slices/incidentsSlice';
 import { storage } from '../../utils/storage';

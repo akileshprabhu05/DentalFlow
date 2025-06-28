@@ -14,7 +14,6 @@ import {
   AlertCircle,
   XCircle
 } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { 
   setIncidents, 
   deleteIncident, 

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Calendar, Clock, User } from 'lucide-react';
-import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { setIncidents } from '../../store/slices/incidentsSlice';
 import { storage } from '../../utils/storage';
 import { useDispatch, useSelector } from 'react-redux';

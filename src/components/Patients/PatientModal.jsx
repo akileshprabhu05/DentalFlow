@@ -9,7 +9,6 @@ import {
   AlertCircle,
   UserPlus,
 } from 'lucide-react';
-import { useAppDispatch } from '../../hooks/redux';
 import { addPatient, updatePatient } from '../../store/slices/patientsSlice';
 import { storage } from '../../utils/storage';
 import { useDispatch } from 'react-redux';
