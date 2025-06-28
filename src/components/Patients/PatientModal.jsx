@@ -12,9 +12,10 @@ import {
 import { useAppDispatch } from '../../hooks/redux';
 import { addPatient, updatePatient } from '../../store/slices/patientsSlice';
 import { storage } from '../../utils/storage';
+import { useDispatch } from 'react-redux';
 
 const PatientModal = ({ patient, onClose, onSave }) => {
-  const dispatch = useAppDispatch();
+  const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
     name: '',

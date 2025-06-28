@@ -1,34 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Calendar, Clock, User } from 'lucide-react';
+import { useAppDispatch, useAppSelector } from '../../hooks/redux';
+import { setIncidents } from '../../store/slices/incidentsSlice';
+import { storage } from '../../utils/storage';
+import { useDispatch, useSelector } from 'react-redux';
 
-// Mock storage for demo purposes
-const storage = {
-  getIncidents: () => [
-    {
-      id: 1,
-      title: 'Dental Checkup',
-      patientId: 1,
-      appointmentDate: '2024-06-15T10:00:00',
-      treatment: 'Regular cleaning'
-    },
-    {
-      id: 2,
-      title: 'Root Canal',
-      patientId: 2,
-      appointmentDate: '2024-06-15T14:30:00',
-      treatment: 'Endodontic treatment'
-    },
-    {
-      id: 3,
-      title: 'Consultation',
-      patientId: 3,
-      appointmentDate: '2024-06-20T09:15:00',
-      treatment: 'Initial consultation'
-    }
-  ]
-};
-
-// Mock date-fns functions for demo
 const format = (date, formatStr) => {
   const options = {
     'd': { day: 'numeric' },
@@ -66,18 +42,22 @@ const isSameMonth = (date1, date2) => {
 };
 const parseISO = (dateString) => new Date(dateString);
 
-const CalendarView = ({ patients = [
-  { id: 1, name: 'John Doe' },
-  { id: 2, name: 'Jane Smith' },
-  { id: 3, name: 'Bob Johnson' }
-] }) => {
-  const [incidents, setIncidents] = useState([]);
+const CalendarView = () => {
+  const dispatch = useDispatch();
+  const { incidents } = useSelector((state) => state.incidents);
+  const { patients } = useSelector((state) => state.patients);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(null);
 
   useEffect(() => {
-    setIncidents(storage.getIncidents());
-  }, []);
+    const loadedIncidents = storage.getIncidents();
+    dispatch(setIncidents(loadedIncidents));
+  }, [dispatch]);
+
+  const getPatientName = (patientId) => {
+    const patient = patients.find(p => p.id === patientId);
+    return patient ? patient.name : 'Unknown Patient';
+  };
 
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(monthStart);
@@ -187,7 +167,6 @@ const CalendarView = ({ patients = [
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6 mb-6">
           <div className="flex items-center justify-between">
             <button
@@ -215,9 +194,7 @@ const CalendarView = ({ patients = [
           </div>
         </div>
 
-        {/* Calendar Grid */}
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
-          {/* Week Headers */}
           <div className="grid grid-cols-7 bg-gradient-to-r from-indigo-500 to-purple-500 text-white">
             {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day) => (
               <div key={day} className="p-4 text-center font-semibold text-sm uppercase tracking-wide">
@@ -226,13 +203,11 @@ const CalendarView = ({ patients = [
             ))}
           </div>
           
-          {/* Calendar Days */}
           <div className="divide-y divide-gray-100">
             {rows}
           </div>
         </div>
 
-        {/* Selected Day Details */}
         {selectedDate && (
           <div className="mt-6 bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 p-6">
             <div className="flex items-center gap-3 mb-6">
@@ -256,43 +231,63 @@ const CalendarView = ({ patients = [
               </div>
             ) : (
               <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {selectedDayIncidents.map((incident) => {
-                  const patient = patients.find((p) => p.id === incident.patientId);
-                  return (
-                    <div
-                      key={incident.id}
-                      className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:transform hover:scale-105"
-                    >
-                      <div className="flex items-start justify-between mb-4">
-                        <h4 className="font-bold text-lg text-gray-900 line-clamp-2">
-                          {incident.title}
-                        </h4>
-                        <div className="p-2 bg-indigo-100 rounded-lg ml-3">
-                          <User className="w-4 h-4 text-indigo-600" />
-                        </div>
+                {selectedDayIncidents.map((incident) => (
+                  <div
+                    key={incident.id}
+                    className="bg-gradient-to-br from-white to-gray-50 rounded-xl p-6 shadow-lg border border-gray-100 hover:shadow-xl transition-all duration-200 hover:transform hover:scale-105"
+                  >
+                    <div className="flex items-start justify-between mb-4">
+                      <h4 className="font-bold text-lg text-gray-900 line-clamp-2">
+                        {incident.title}
+                      </h4>
+                      <div className="p-2 bg-indigo-100 rounded-lg ml-3">
+                        <User className="w-4 h-4 text-indigo-600" />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <User className="w-4 h-4" />
+                        <span className="font-medium">
+                          {getPatientName(incident.patientId)}
+                        </span>
                       </div>
                       
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <User className="w-4 h-4" />
-                          <span className="font-medium">
-                            {patient ? patient.name : 'Unknown Patient'}
-                          </span>
+                      <div className="flex items-center gap-2 text-gray-600">
+                        <Clock className="w-4 h-4" />
+                        <span>{format(parseISO(incident.appointmentDate), 'hh:mm a')}</span>
+                      </div>
+                      
+                      {incident.description && (
+                        <div className="pt-2 border-t border-gray-200">
+                          <p className="text-sm text-gray-700 font-medium">Description:</p>
+                          <p className="text-sm text-gray-600 mt-1">{incident.description}</p>
                         </div>
-                        
-                        <div className="flex items-center gap-2 text-gray-600">
-                          <Clock className="w-4 h-4" />
-                          <span>{format(parseISO(incident.appointmentDate), 'hh:mm a')}</span>
-                        </div>
-                        
+                      )}
+                      
+                      {incident.treatment && (
                         <div className="pt-2 border-t border-gray-200">
                           <p className="text-sm text-gray-700 font-medium">Treatment:</p>
                           <p className="text-sm text-gray-600 mt-1">{incident.treatment}</p>
                         </div>
-                      </div>
+                      )}
+                      
+                      {incident.status && (
+                        <div className="pt-2">
+                          <span className={`
+                            px-2 py-1 rounded-full text-xs font-medium
+                            ${incident.status === 'Completed' ? 'bg-green-100 text-green-800' : ''}
+                            ${incident.status === 'Scheduled' ? 'bg-blue-100 text-blue-800' : ''}
+                            ${incident.status === 'Cancelled' ? 'bg-red-100 text-red-800' : ''}
+                            ${!['Completed', 'Scheduled', 'Cancelled'].includes(incident.status) ? 'bg-yellow-100 text-yellow-800' : ''}
+                          `}>
+                            {incident.status}
+                          </span>
+                        </div>
+                      )}
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
             )}
           </div>

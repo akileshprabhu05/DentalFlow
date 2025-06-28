@@ -1,7 +1,6 @@
 import React from 'react';
 
 const RevenueChart = ({ incidents }) => {
-  // Generate monthly revenue data
   const monthlyRevenue = incidents.reduce((acc, incident) => {
     if (incident.cost) {
       const date = new Date(incident.appointmentDate);
@@ -17,7 +16,6 @@ const RevenueChart = ({ incidents }) => {
 
   return (
     <div className="space-y-4">
-      {/* Chart Bars */}
       <div className="flex items-end justify-between h-64 bg-gray-50 rounded-lg p-4">
         {months.map((month, index) => {
           const height = (revenues[index] / maxRevenue) * 200;
@@ -35,7 +33,6 @@ const RevenueChart = ({ incidents }) => {
         })}
       </div>
 
-      {/* Summary Stats */}
       <div className="grid grid-cols-3 gap-4 text-center">
         <div>
           <p className="text-2xl font-bold text-gray-900">

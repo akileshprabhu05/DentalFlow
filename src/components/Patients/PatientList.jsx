@@ -4,10 +4,11 @@ import { useAppDispatch, useAppSelector } from '../../hooks/redux';
 import { setPatients, deletePatient, setSelectedPatient } from '../../store/slices/patientsSlice';
 import { storage } from '../../utils/storage';
 import PatientModal from './PatientModal';
+import { useDispatch, useSelector } from 'react-redux';
 
 const PatientList = () => {
-  const dispatch = useAppDispatch();
-  const { patients } = useAppSelector((state) => state.patients);
+  const dispatch = useDispatch();
+  const { patients } = useSelector((state) => state.patients);
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [selectedPatient, setSelectedPatientLocal] = useState(null);

@@ -8,19 +8,15 @@ import Layout from './components/Layout/Layout';
 import Login from './components/Auth/Login';
 import AdminDashboard from './components/Dashboard/AdminDashboard';
 import PatientList from './components/Patients/PatientList';
-import CalendarView from './components/Dashboard/CalendarView';
-import AppointmentsPage from './components/Appointments/AppointmentsPage';
+import CalendarView from './components/Calendar/CalendarView';
+import IncidentList from './components/Appointments/AppointmentList';
 
-// Initialize mock data
 initializeMockData();
 
-// Custom hooks (replacing TypeScript-based hooks)
-const useAppDispatch = () => useDispatch();
-const useAppSelector = useSelector;
 
 const AppContent = () => {
-  const dispatch = useAppDispatch();
-  const { isAuthenticated, user } = useAppSelector((state) => state.auth);
+  const dispatch = useDispatch();
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
   const [authInitialized, setAuthInitialized] = useState(false);
 
   useEffect(() => {
@@ -28,7 +24,7 @@ const AppContent = () => {
     setAuthInitialized(true);
   }, [dispatch]);
 
-  if (!authInitialized) return null; // or a loading spinner
+  if (!authInitialized) return null;
 
   if (!isAuthenticated) {
     return (
@@ -48,7 +44,7 @@ const AppContent = () => {
             <Route path="/patients" element={<PatientList />} />
             <Route
               path="/appointments"
-              element={<AppointmentsPage patients={store.getState().patients.patients} />}
+              element={<IncidentList />}
             />
             <Route
               path="/calendar"
