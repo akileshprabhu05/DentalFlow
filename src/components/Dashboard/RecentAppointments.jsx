@@ -17,7 +17,7 @@ const RecentAppointments = ({ incidents, patients }) => {
       {incidents.map((incident) => {
         const patient = patients.find(p => p.id === incident.patientId);
         const appointmentDate = new Date(incident.appointmentDate);
-
+        
         return (
           <div key={incident.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
             <div className="flex items-center space-x-4">

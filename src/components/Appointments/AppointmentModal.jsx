@@ -138,7 +138,7 @@ const AppointmentModal = ({ incident, onClose, onSave }) => {
           createdAt: incidentData.createdAt
         });
       }
-
+      
       onSave();
     } catch (error) {
       console.error('Error saving incident:', error);

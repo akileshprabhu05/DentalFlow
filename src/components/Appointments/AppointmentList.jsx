@@ -19,6 +19,7 @@ import {
   deleteIncident, 
   setSelectedIncident 
 } from '../../store/slices/incidentsSlice';
+import { setPatients } from '../../store/slices/patientsSlice';
 import { storage } from '../../utils/storage';
 import AppointmentModal from './AppointmentModal';
 import { useDispatch, useSelector } from 'react-redux';
@@ -33,12 +34,23 @@ const AppointmentList = () => {
   const [selectedIncident, setSelectedIncidentLocal] = useState(null);
 
   useEffect(() => {
+    const loadedPatients = storage.getPatients();
     const loadedIncidents = storage.getIncidents();
+    
+    dispatch(setPatients(loadedPatients));
     dispatch(setIncidents(loadedIncidents));
   }, [dispatch]);
 
   const getPatientName = (patientId) => {
-    const patient = patients.find(p => p.id === patientId);
+    if (!patientId) return 'Unknown Patient';
+    
+    let patient = patients.find(p => p.id === patientId);
+    
+    if (!patient && patients.length === 0) {
+      const loadedPatients = storage.getPatients();
+      patient = loadedPatients.find(p => p.id === patientId);
+    }
+    
     return patient ? patient.name : 'Unknown Patient';
   };
 
@@ -102,7 +114,6 @@ const AppointmentList = () => {
   return (
     <div className="p-6">
       <div className="bg-white rounded-xl shadow-sm">
-        {/* Header */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -118,7 +129,6 @@ const AppointmentList = () => {
             </button>
           </div>
 
-          {/* Search and Filter */}
           <div className="mt-6 flex flex-col sm:flex-row gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />

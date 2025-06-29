@@ -66,10 +66,11 @@ const CalendarView = () => {
   const dateFormat = 'd';
   const rows = [];
   let days = [];
-  let day = startDate;
+  let day = new Date(startDate);
 
   while (day <= endDate) {
     for (let i = 0; i < 7; i++) {
+      const currentDate = new Date(day);
       const formattedDate = format(day, dateFormat);
       const dayIncidents = incidents.filter((incident) =>
         isSameDay(parseISO(incident.appointmentDate), day)
@@ -98,8 +99,8 @@ const CalendarView = () => {
             }
             group
           `}
-          key={day.toString()}
-          onClick={() => setSelectedDate(day)}
+          key={currentDate.toISOString()}
+          onClick={() => setSelectedDate(currentDate)}
         >
           <div className="flex flex-col h-full">
             <div className="flex items-center justify-between mb-2">
@@ -163,6 +164,7 @@ const CalendarView = () => {
       )
     : [];
 
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6">
       <div className="max-w-7xl mx-auto">
@@ -180,7 +182,7 @@ const CalendarView = () => {
               <h1 className="text-3xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
                 {format(currentMonth, 'MMMM yyyy')}
               </h1>
-              <p className="text-gray-600 mt-1">Healthcare Calendar</p>
+              <p className="text-gray-600 mt-1">DentalFLow Calendar</p>
             </div>
             
             <button
@@ -195,14 +197,14 @@ const CalendarView = () => {
 
         <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-white/20 overflow-hidden">
           <div className="grid grid-cols-7 bg-gradient-to-r from-indigo-500 to-purple-500 text-white">
-            {['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'].map((day) => (
+            {['Sun', 'Mon', 'Tue', 'Wed', 'Thur', 'Fri', 'Sat'].map((day) => (
               <div key={day} className="p-4 text-center font-semibold text-sm uppercase tracking-wide">
-                {day.slice(0, 3)}
+                {day}
               </div>
             ))}
           </div>
           
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-gray-100 ">
             {rows}
           </div>
         </div>

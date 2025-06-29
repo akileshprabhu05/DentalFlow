@@ -31,9 +31,17 @@ const AdminDashboard = () => {
   }, [dispatch]);
 
   const completedIncidents = incidents.filter((i) => i.status === 'Completed');
+  
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); 
+
   const upcomingIncidents = incidents.filter(
-    (i) => i.status === 'Scheduled' && new Date(i.appointmentDate) > new Date()
+    (i) => 
+      i.status === 'Scheduled' &&
+      new Date(i.appointmentDate) > today
   );
+
+
   const totalRevenue = completedIncidents.reduce(
     (sum, incident) => sum + (incident.cost || 0),
     0
@@ -102,7 +110,7 @@ const AdminDashboard = () => {
                   <span className="text-blue-100 font-medium">{currentDate}</span>
                 </div>
                 <h1 className="text-4xl font-bold mb-2 leading-tight">
-                  Welcome to DentalCare
+                  Welcome to DentalFlow
                   <span className="block text-3xl text-blue-100">Admin Dashboard</span>
                 </h1>
                 <p className="text-blue-100 text-lg max-w-2xl">
