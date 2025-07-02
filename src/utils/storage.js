@@ -106,5 +106,32 @@ export const storage = {
         return [];
       }
     },
+
+    saveMonthlyStats : ({ patients, incidents }) => {
+      const now = new Date();
+      const monthKey = now.toISOString().slice(0, 7);
+    
+      const completedIncidents = incidents.filter(i => i.status === 'Completed');
+      const revenue = completedIncidents.reduce((sum, i) => sum + (i.cost || 0), 0);
+      const upcoming = incidents.filter(i => i.status === 'Scheduled' && new Date(i.appointmentDate) > now).length;
+      const pending = incidents.filter(i => i.status === 'In Progress').length;
+    
+      const stats = {
+        patients: patients.length,
+        revenue,
+        appointments: upcoming,
+        pending,
+      };
+    
+      localStorage.setItem(`stats-${monthKey}`, JSON.stringify(stats));
+    },
+
+    getPreviousMonthStats : () => {
+      const date = new Date();
+      date.setMonth(date.getMonth() - 1);
+      const key = date.toISOString().slice(0, 7);
+      const data = localStorage.getItem(`stats-${key}`);
+      return data ? JSON.parse(data) : null;
+    },
   };
   

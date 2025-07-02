@@ -28,6 +28,8 @@ const AdminDashboard = () => {
     const loadedIncidents = storage.getIncidents();
     dispatch(setPatients(loadedPatients));
     dispatch(setIncidents(loadedIncidents));
+
+    storage.saveMonthlyStats({ patients: loadedPatients, incidents: loadedIncidents });
   }, [dispatch]);
 
   const completedIncidents = incidents.filter((i) => i.status === 'Completed');
@@ -50,40 +52,51 @@ const AdminDashboard = () => {
     (i) => i.status === 'In Progress'
   ).length;
 
+  const getPercentageChange = (current, previous) => {
+    if (!previous || previous === 0) return { change: '+100%', changeType: 'positive' };
+  
+    const diff = ((current - previous) / previous) * 100;
+    const rounded = Math.abs(diff).toFixed(1);
+  
+    return {
+      change: `${diff >= 0 ? '+' : '-'}${rounded}%`,
+      changeType: diff >= 0 ? 'positive' : 'negative',
+    };
+  };  
+
+  const prevStats = storage.getPreviousMonthStats();
+
   const statsData = [
-    {
-      title: 'Total Patients',
-      value: patients.length.toString(),
-      change: '+12%',
-      changeType: 'positive',
-      icon: Users,
-      color: 'blue',
-    },
-    {
-      title: 'Upcoming Appointments',
-      value: upcomingIncidents.length.toString(),
-      change: '+5%',
-      changeType: 'positive',
-      icon: Calendar,
-      color: 'green',
-    },
-    {
-      title: 'Total Revenue',
-      value: `$${totalRevenue.toLocaleString()}`,
-      change: '+18%',
-      changeType: 'positive',
-      icon: DollarSign,
-      color: 'purple',
-    },
-    {
-      title: 'Pending Treatments',
-      value: pendingIncidents.toString(),
-      change: '-2%',
-      changeType: 'negative',
-      icon: Clock,
-      color: 'orange',
-    },
-  ];
+  {
+    title: 'Total Patients',
+    value: patients.length.toString(),
+    ...getPercentageChange(patients.length, prevStats?.patients || 0),
+    icon: Users,
+    color: 'blue',
+  },
+  {
+    title: 'Upcoming Appointments',
+    value: upcomingIncidents.length.toString(),
+    ...getPercentageChange(upcomingIncidents.length, prevStats?.appointments || 0),
+    icon: Calendar,
+    color: 'green',
+  },
+  {
+    title: 'Total Revenue',
+    value: `$${totalRevenue.toLocaleString()}`,
+    ...getPercentageChange(totalRevenue, prevStats?.revenue || 0),
+    icon: DollarSign,
+    color: 'purple',
+  },
+  {
+    title: 'Pending Treatments',
+    value: pendingIncidents.toString(),
+    ...getPercentageChange(pendingIncidents, prevStats?.pending || 0),
+    icon: Clock,
+    color: 'orange',
+  },
+];
+
 
   const currentDate = new Date().toLocaleDateString('en-US', {
     weekday: 'long',
