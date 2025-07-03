@@ -10,8 +10,9 @@ import AdminDashboard from './components/Dashboard/AdminDashboard';
 import PatientList from './components/Patients/PatientList';
 import CalendarView from './components/Calendar/CalendarView';
 import IncidentList from './components/Appointments/AppointmentList';
-
-initializeMockData();
+import PatientDashboard from './components/Dashboard/PatientDashboard';
+import MyAppointments from './components/Patients/MyAppointments';
+import MyRecords from './components/Patients/MyRecords';
 
 
 const AppContent = () => {
@@ -54,9 +55,9 @@ const AppContent = () => {
           </>
         ) : (
           <>
-            <Route path="/patient-dashboard" element={<div className="p-6">Patient Dashboard - Coming Soon</div>} />
-            <Route path="/my-appointments" element={<div className="p-6">My Appointments - Coming Soon</div>} />
-            <Route path="/my-records" element={<div className="p-6">Medical Records - Coming Soon</div>} />
+            <Route path="/patient-dashboard" element={<PatientDashboard/>} />
+            <Route path="/my-appointments" element={<MyAppointments/>} />
+            <Route path="/my-records" element={<MyRecords/>} />
             <Route path="*" element={<Navigate to="/patient-dashboard" replace />} />
           </>
         )}

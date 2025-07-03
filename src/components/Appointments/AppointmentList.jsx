@@ -54,6 +54,15 @@ const AppointmentList = () => {
     return patient ? patient.name : 'Unknown Patient';
   };
 
+  const handleDownloadFile = (file) => {
+    const link = document.createElement('a');
+    link.href = file.data;
+    link.download = file.name || 'download';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const filteredIncidents = incidents.filter((incident) => {
     const matchesSearch = 
       incident.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -117,8 +126,12 @@ const AppointmentList = () => {
         <div className="p-6 border-b border-gray-200">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Appointments & Incidents</h1>
-              <p className="text-gray-600 mt-1">Manage patient appointments and incidents</p>
+              <h1 className="text-2xl font-bold text-gray-900">
+                Appointments & Incidents
+              </h1>
+              <p className="text-gray-600 mt-1">
+                Manage patient appointments and incidents
+              </p>
             </div>
             <button
               onClick={handleAddIncident}
@@ -160,17 +173,21 @@ const AppointmentList = () => {
           {filteredIncidents.length === 0 ? (
             <div className="text-center py-12">
               <Calendar className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-              <p className="text-lg font-medium text-gray-900">No appointments found</p>
+              <p className="text-lg font-medium text-gray-900">
+                No appointments found
+              </p>
               <p className="text-gray-500">
-                {searchTerm || statusFilter !== 'all' 
-                  ? 'Try adjusting your search or filter' 
-                  : 'Add your first appointment to get started'
-                }
+                {searchTerm || statusFilter !== "all"
+                  ? "Try adjusting your search or filter"
+                  : "Add your first appointment to get started"}
               </p>
             </div>
           ) : (
             filteredIncidents.map((incident) => (
-              <div key={incident.id} className="p-6 hover:bg-gray-50 transition-colors">
+              <div
+                key={incident.id}
+                className="p-6 hover:bg-gray-50 transition-colors"
+              >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-4">
                     <div className="p-3 bg-blue-100 rounded-full">
@@ -178,30 +195,40 @@ const AppointmentList = () => {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center space-x-3 mb-2">
-                        <h3 className="text-lg font-medium text-gray-900">{incident.title}</h3>
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(incident.status)}`}>
+                        <h3 className="text-lg font-medium text-gray-900">
+                          {incident.title}
+                        </h3>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColor(
+                            incident.status
+                          )}`}
+                        >
                           {incident.status}
                         </span>
                       </div>
-                      
+
                       <div className="flex items-center space-x-1 text-sm text-gray-600 mb-1">
                         <User className="h-4 w-4" />
                         <span>{getPatientName(incident.patientId)}</span>
                       </div>
-                      
+
                       <div className="flex items-center space-x-1 text-sm text-gray-600 mb-2">
                         <Clock className="h-4 w-4" />
-                        <span>{new Date(incident.appointmentDate).toLocaleString()}</span>
+                        <span>
+                          {new Date(incident.appointmentDate).toLocaleString()}
+                        </span>
                       </div>
-                      
-                      <p className="text-sm text-gray-600 mb-2">{incident.description}</p>
-                      
+
+                      <p className="text-sm text-gray-600 mb-2">
+                        {incident.description}
+                      </p>
+
                       {incident.comments && (
                         <p className="text-sm text-gray-500 italic mb-2">
                           <strong>Comments:</strong> {incident.comments}
                         </p>
                       )}
-                      
+
                       <div className="flex items-center space-x-4 text-sm">
                         {incident.cost && (
                           <div className="flex items-center space-x-1 text-green-600">
@@ -209,25 +236,36 @@ const AppointmentList = () => {
                             <span>${incident.cost}</span>
                           </div>
                         )}
-                        
+
                         {incident.treatment && (
                           <div className="flex items-center space-x-1 text-blue-600">
                             <FileText className="h-4 w-4" />
                             <span>{incident.treatment}</span>
                           </div>
                         )}
-                        
+
                         {incident.files && incident.files.length > 0 && (
-                          <div className="flex items-center space-x-1 text-purple-600">
-                            <FileText className="h-4 w-4" />
-                            <span>{incident.files.length} file(s)</span>
+                          <div className="flex flex-col space-y-1 text-purple-600 mt-1">
+                            {incident.files.map((file, index) => (
+                              <button
+                                key={index}
+                                onClick={() => handleDownloadFile(file)}
+                                className="flex items-center space-x-2 text-left text-sm hover:underline"
+                              >
+                                <FileText className="h-4 w-4" />
+                                <span>{file.name}</span> 
+                              </button>
+                            ))}
                           </div>
                         )}
                       </div>
-                      
+
                       {incident.nextAppointmentDate && (
                         <div className="mt-2 text-sm text-gray-600">
-                          <strong>Next Appointment:</strong> {new Date(incident.nextAppointmentDate).toLocaleDateString()}
+                          <strong>Next Appointment:</strong>{" "}
+                          {new Date(
+                            incident.nextAppointmentDate
+                          ).toLocaleDateString()}
                         </div>
                       )}
                     </div>

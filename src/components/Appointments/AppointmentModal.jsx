@@ -88,15 +88,35 @@ const AppointmentModal = ({ incident, onClose, onSave }) => {
   };
 
   const handleFileUpload = (e) => {
-    const files = Array.from(e.target.files);
-    const fileNames = files.map(file => file.name);
-    
-    setFormData(prev => ({
-      ...prev,
-      files: [...prev.files, ...fileNames],
-      updatedAt: new Date().toISOString()
-    }));
+    const uploadedFiles = Array.from(e.target.files);
+  
+    Promise.all(uploadedFiles.map(file => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          resolve({
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            data: reader.result,
+          });
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }))
+    .then(newFiles => {
+      setFormData(prev => ({
+        ...prev,
+        files: [...prev.files, ...newFiles],
+        updatedAt: new Date().toISOString()
+      }));
+    })
+    .catch(err => {
+      console.error('Error reading files:', err);
+    });
   };
+  
 
   const removeFile = (index) => {
     setFormData(prev => ({
@@ -401,7 +421,7 @@ const AppointmentModal = ({ incident, onClose, onSave }) => {
                   <div key={index} className="flex items-center justify-between bg-gray-50 p-3 rounded-lg">
                     <span className="text-sm text-gray-700 flex items-center">
                       <FileText className="h-4 w-4 mr-2 text-gray-500" />
-                      {fileName}
+                      {fileName.name}
                     </span>
                     <button
                       type="button"
