@@ -12,7 +12,8 @@ import {
   Filter,
   CheckCircle,
   AlertCircle,
-  XCircle
+  XCircle,
+  AlertTriangle
 } from 'lucide-react';
 import { 
   setIncidents, 
@@ -23,6 +24,7 @@ import { setPatients } from '../../store/slices/patientsSlice';
 import { storage } from '../../utils/storage';
 import AppointmentModal from './AppointmentModal';
 import { useDispatch, useSelector } from 'react-redux';
+import DeleteConfirmationModal from '../DeleteConfirmationModal';
 
 const AppointmentList = () => {
   const dispatch = useDispatch();
@@ -32,6 +34,8 @@ const AppointmentList = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [showModal, setShowModal] = useState(false);
   const [selectedIncident, setSelectedIncidentLocal] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [incidentToDelete, setIncidentToDelete] = useState(null);
 
   useEffect(() => {
     const loadedPatients = storage.getPatients();
@@ -86,12 +90,19 @@ const AppointmentList = () => {
     setShowModal(true);
   };
 
-  const handleDeleteIncident = (incidentId) => {
-    if (window.confirm('Are you sure you want to delete this incident?')) {
-      dispatch(deleteIncident(incidentId));
-      const updatedIncidents = incidents.filter((i) => i.id !== incidentId);
+  const handleDeleteIncident = (incident) => {
+    setIncidentToDelete(incident);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (incidentToDelete) {
+      dispatch(deleteIncident(incidentToDelete.id));
+      const updatedIncidents = incidents.filter((i) => i.id !== incidentToDelete.id);
       storage.saveIncidents(updatedIncidents);
     }
+    setDeleteModalOpen(false);
+    setIncidentToDelete(null);
   };
 
   const getStatusIcon = (status) => {
@@ -280,7 +291,7 @@ const AppointmentList = () => {
                       <Edit className="h-5 w-5" />
                     </button>
                     <button
-                      onClick={() => handleDeleteIncident(incident.id)}
+                      onClick={() => handleDeleteIncident(incident)}
                       className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     >
                       <Trash2 className="h-5 w-5" />
@@ -304,6 +315,15 @@ const AppointmentList = () => {
           }}
         />
       )}
+
+      <DeleteConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setIncidentToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };

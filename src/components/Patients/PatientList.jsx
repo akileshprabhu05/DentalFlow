@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Plus, Search, Edit, Trash2, User, Phone, Mail } from 'lucide-react';
+import { Plus, Search, Edit, Trash2, User, Phone, Mail, AlertTriangle } from 'lucide-react';
 import { setPatients, deletePatient, setSelectedPatient } from '../../store/slices/patientsSlice';
 import { storage } from '../../utils/storage';
 import PatientModal from './PatientModal';
 import { useDispatch, useSelector } from 'react-redux';
+import DeleteConfirmationModal from '../DeleteConfirmationModal';
+
 
 const PatientList = () => {
   const dispatch = useDispatch();
@@ -11,6 +13,8 @@ const PatientList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showModal, setShowModal] = useState(false);
   const [selectedPatient, setSelectedPatientLocal] = useState(null);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [patientToDelete, setPatientToDelete] = useState(null);
 
   useEffect(() => {
     const loadedPatients = storage.getPatients();
@@ -35,18 +39,24 @@ const PatientList = () => {
     setShowModal(true);
   };
 
-  const handleDeletePatient = (patientId) => {
-    if (window.confirm('Are you sure you want to delete this patient?')) {
-      dispatch(deletePatient(patientId));
-      const updatedPatients = patients.filter((p) => p.id !== patientId);
+  const handleDeletePatient = (patient) => {
+    setPatientToDelete(patient);
+    setDeleteModalOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (patientToDelete) {
+      dispatch(deletePatient(patientToDelete.id));
+      const updatedPatients = patients.filter((p) => p.id !== patientToDelete.id);
       storage.savePatients(updatedPatients);
     }
+    setDeleteModalOpen(false);
+    setPatientToDelete(null);
   };
 
   return (
     <div className="p-6">
       <div className="bg-white rounded-xl shadow-sm">
-        {/* Header */}
         <div className="p-6 border-b border-gray-200">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
             <div>
@@ -62,7 +72,6 @@ const PatientList = () => {
             </button>
           </div>
 
-          {/* Search */}
           <div className="mt-6 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <input
@@ -75,7 +84,6 @@ const PatientList = () => {
           </div>
         </div>
 
-        {/* Patient List */}
         <div className="divide-y divide-gray-200">
           {filteredPatients.length === 0 ? (
             <div className="text-center py-12">
@@ -121,7 +129,7 @@ const PatientList = () => {
                       <Edit className="h-5 w-5" />
                     </button>
                     <button
-                      onClick={() => handleDeletePatient(patient.id)}
+                      onClick={() => handleDeletePatient(patient)}
                       className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                     >
                       <Trash2 className="h-5 w-5" />
@@ -142,7 +150,6 @@ const PatientList = () => {
         </div>
       </div>
 
-      {/* Patient Modal */}
       {showModal && (
         <PatientModal
           patient={selectedPatient}
@@ -154,6 +161,15 @@ const PatientList = () => {
           }}
         />
       )}
+
+      <DeleteConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setPatientToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+      />
     </div>
   );
 };
