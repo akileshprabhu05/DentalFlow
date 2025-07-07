@@ -21,6 +21,7 @@ const AppContent = () => {
   const [authInitialized, setAuthInitialized] = useState(false);
 
   useEffect(() => {
+    initializeMockData();
     dispatch(initializeAuth());
     setAuthInitialized(true);
   }, [dispatch]);
